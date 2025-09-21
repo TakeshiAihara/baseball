@@ -267,11 +267,11 @@ def summary():
         df['日付'] = pd.to_datetime(df['日付'], errors='coerce')
         df = df.sort_values('日付')
     total_games = len(valid_df)
-    win = (valid_df['勝敗'] == '勝').sum()
-    lose = (valid_df['勝敗'] == '敗').sum()
-    draw = (valid_df['勝敗'] == '引分').sum()
-    denominator = win + lose
-    win_rate = round(win / denominator, 3) if denominator > 0 else 0
+    win_count = (valid_df['勝敗'] == '勝').sum()
+    lose_count = (valid_df['勝敗'] == '敗').sum()
+    draw_count = (valid_df['勝敗'] == '引分').sum()
+    denominator = win_count + lose_count
+    win_rate = round(win_count / denominator, 3) if denominator > 0 else 0
     # 累積勝敗リスト生成（全件・空欄0扱い）
     result_map = {'勝': 1, '敗': -1, '引分': 0}
     if '勝敗' in df.columns and len(df) > 0:
@@ -290,11 +290,15 @@ def summary():
             games = len(group)
             win = (group['勝敗'] == '勝').sum()
             lose = (group['勝敗'] == '敗').sum()
+            draw = (group['勝敗'] == '引分').sum()
             denominator = win + lose
             rate = round(win / denominator, 3) if denominator > 0 else 0
             vs_team_stats.append({
                 'team': team,
                 'games': games,
+                'win': win,
+                'lose': lose,
+                'draw': draw,
                 'win_rate': rate
             })
         vs_team_stats = sorted(vs_team_stats, key=lambda x: x['games'], reverse=True)
@@ -518,9 +522,9 @@ def summary():
 
     return render_template('summary.html',
         total_games=total_games,
-        win=win,
-        lose=lose,
-        draw=draw,
+        win_count=win_count,
+        lose_count=lose_count,
+        draw_count=draw_count,
         win_rate=win_rate,
         vs_team_stats=vs_team_stats,
         sum_dict=sum_dict,
