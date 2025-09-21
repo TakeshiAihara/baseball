@@ -19,9 +19,9 @@
       <tr><th>試合数</th><th>勝利数</th><th>敗北数</th><th>引分数</th><th>勝率</th></tr>
       <tr>
         <td>{{ total_games }}</td>
-        <td>{{ win }}</td>
-        <td>{{ lose }}</td>
-        <td>{{ draw }}</td>
+        <td>{{ win_count }}</td>
+        <td>{{ lose_count }}</td>
+        <td>{{ draw_count }}</td>
         <td>{{ win_rate }}</td>
       </tr>
     </table>
@@ -29,7 +29,7 @@
 
   <div style="min-width:320px; max-width:420px;">
     <h3 style="margin-bottom:0.2em;">貯金数グラフ</h3>
-    <canvas id="cumulativeChart" width="380" height="220"></canvas>
+    <canvas id="cumulativeChart" width="480" height="320"></canvas>
     <script>
       const ctx = document.getElementById('cumulativeChart').getContext('2d');
       const chokinData = {{ cumulative_results | default([]) | tojson }};
@@ -58,8 +58,8 @@
             segment: {
               borderColor: getSegmentColor
             },
-            borderWidth: 2,
-            pointRadius: 3,
+            borderWidth: 1,
+            pointRadius: 1,
             pointBackgroundColor: 'black', // 点は常に黒
             fill: false,
           }]
@@ -108,33 +108,18 @@
   <div>
     <h2>対戦チームごとの成績</h2>
     <table border="1" cellpadding="6" style="background:#fff;">
-      <tr><th>チーム名</th><th>試合数</th><th>勝率</th></tr>
+      <tr><th>チーム名</th><th>試合数</th><th>勝</th><th>敗</th><th>引分</th><th>勝率</th></tr>
       {% for row in vs_team_stats %}
       <tr>
         <td>{{ row.team }}</td>
         <td>{{ row.games }}</td>
+        <td>{{ row.win }}</td>
+        <td>{{ row.lose }}</td>
+        <td>{{ row.draw }}</td>
         <td>{{ row.win_rate }}</td>
       </tr>
       {% endfor %}
     </table>
-  </div>
-  <div style="display: flex; align-items: flex-start; gap: 2em;">
-    <div>
-      <h2>通算成績</h2>
-      <table border="1" cellpadding="6" style="background:#fff;">
-        <tr><th>通算打率</th><th>通算本塁打率</th><th>通算OPS</th><th>通算防御率</th><th>通算被打率</th><th>通算被本塁打率</th></tr>
-        <tr>
-          <td>{{ avg_batting }}</td>
-          <td>{{ hr_rate }}</td>
-          <td>{{ ops }}</td>
-          <td>{{ era }}</td>
-          <td>{{ opp_avg }}</td>
-          <td>{{ opp_hr_rate }}</td>
-        </tr>
-      </table>
-    </div>
-    
-    <div>
       <h2>年度ごとの成績</h2>
       <table border="1" cellpadding="6" style="background:#fff;">
         <tr><th>年度</th><th>試合数</th><th>勝</th><th>敗</th><th>引分</th><th>勝率</th></tr>
@@ -151,11 +136,8 @@
       </table>
       
       <!-- 年度ごと成績の棒グラフ -->
-      <div style="max-width: 900px; margin: auto;">
         <h2>年度別成績グラフ</h2>
         <canvas id="yearlyBarChart"></canvas>
-      
-      
       <script>
         // Wait for the page to fully load
         document.addEventListener('DOMContentLoaded', function() {
@@ -250,6 +232,17 @@
       </table>
     </div>
   </div>
+  <table border="1" cellpadding="6" style="background:#fff;">
+    <tr><th>通算打率</th><th>通算本塁打率</th><th>通算OPS</th><th>通算防御率</th><th>通算被打率</th><th>通算被本塁打率</th></tr>
+    <tr>
+      <td>{{ avg_batting }}</td>
+      <td>{{ hr_rate }}</td>
+      <td>{{ ops }}</td>
+      <td>{{ era }}</td>
+      <td>{{ opp_avg }}</td>
+      <td>{{ opp_hr_rate }}</td>
+    </tr>
+  </table>
   
   <!-- 打撃成績 -->
   <div style="margin-bottom: 2em;">
@@ -348,7 +341,7 @@
       <tr>
         {% for col in columns %}
           {% if col.startswith('自チーム_') %}
-            <th>🐉 {{ col.replace('自チーム_', '') }}</th>
+            <th> {{ col.replace('自チーム_', '') }}</th>
           {% elif col.startswith('相手チーム_') %}
             <th>👥 {{ col.replace('相手チーム_', '') }}</th>
           {% elif col == 'チーム名' %}
